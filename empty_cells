@@ -9,8 +9,9 @@ fi
 FILE="$1"
 
 
-# Read header line (first line) and split by ; into array
-IFS=';' read -r -a headers < "$FILE"
+# Read and sanitize the header
+header_line=$(head -n 1 "$FILE" | tr -d '\r')
+IFS=';' read -r -a headers <<< "$header_line"
 
 # Get number of columns
 num_columns=${#headers[@]}
