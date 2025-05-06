@@ -2,7 +2,7 @@
 CITS4407 Sem 1 2025 Assignment 2
 
 
-This repository is created for completing assignment 2 of CITS4407.
+This repository is created for completing CITS4407 assignment 2 SEM 1 2025. 
 
 Following is the assignment details
 
