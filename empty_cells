@@ -7,19 +7,15 @@ fi
 
 FILE="$1"
 
-# Get header line and split it
-header_line=$(head -n 1 "$FILE" | tr -d '\r')
-IFS=';' read -r -a headers <<< "$header_line"
+# Get header line and clean it
+header_line=$(head -n 1 "$FILE")
+clean_header=$(echo "$header_line" | tr -d '\r' | sed 's/[[:space:]]*$//')
+IFS=';' read -r -a headers <<< "$clean_header"
 num_columns=${#headers[@]}
 
 # Loop through columns
 for ((i = 1; i <= num_columns; i++)); do
-  # Extract the column data (excluding header)
-  column_data=$(tail -n +2 "$FILE" | cut -d';' -f"$i")
-
-  # Count empty lines in this column
+  column_data=$(tail -n +2 "$FILE" | tr -d '\r' | cut -d';' -f"$i")
   empty_count=$(echo "$column_data" | grep -c '^$')
-
-  # Print column name and empty count
   echo "${headers[$((i - 1))]}: $empty_count"
 done
