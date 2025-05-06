@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Check if file is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <filename>"
+  exit 1
+fi
+
+FILE="$1"
+
+
+# Read header line (first line) and split by ; into array
+IFS=';' read -r -a headers < "$FILE"
+
+# Get number of columns
+num_columns=${#headers[@]}
+
+# Loop through each column index
+for (( i=1; i<=$num_columns; i++ ))
+do
+  # Extract the i-th column (skip header with tail)
+  column_data=$(tail -n +2 "$FILE" | cut -d';' -f"$i")
+
+  # Count empty lines (lines where that field is empty)
+  empty_count=$(echo "$column_data" | grep -c '^$')
+
+  # Print column name and count
+  echo "${headers[$((i-1))]}: $empty_count"
+done
