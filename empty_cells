@@ -1,21 +1,20 @@
 #!/bin/bash
-
+#check for argument and show usage 
 if [ -z "$1" ]; then
   echo "Usage: $0 <filename>"
   exit 1
 fi
-
 FILE="$1"
-
-# Get header line and clean it
 header_line=$(head -n 1 "$FILE")
-clean_header=$(echo "$header_line" | tr -d '\r' | sed 's/[[:space:]]*$//')
+#remove whitespaces in the first line
+clean_header=$(echo "$header_line" | sed 's/[[:space:]]*$//')
+#split line with semicolon as delimiter into an array/list called headers
 IFS=';' read -r -a headers <<< "$clean_header"
 num_columns=${#headers[@]}
-
 # Loop through columns
 for ((i = 1; i <= num_columns; i++)); do
-  column_data=$(tail -n +2 "$FILE" | tr -d '\r' | cut -d';' -f"$i")
-  empty_count=$(echo "$column_data" | grep -c '^$')
-  echo "${headers[$((i - 1))]}: $empty_count"
+  #tail display and skip header | tr remove carriage | cut -d get column index | grep -c counts matching regex ^$ (nothing) 
+  empty_cells=$(tail -n +2 "$FILE" | tr -d '\r' | cut -d';' -f"$i" | grep -c '^$')
+  # display the result
+  echo "${headers[$((i - 1))]}: $empty_cells"
 done
