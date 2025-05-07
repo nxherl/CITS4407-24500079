@@ -8,13 +8,13 @@ FILE="$1"
 header_line=$(head -n 1 "$FILE")
 #remove whitespaces in the first line
 clean_header=$(echo "$header_line" | sed 's/[[:space:]]*$//')
+
 #split line with semicolon as delimiter into an array/list called headers
 IFS=';' read -r -a headers <<< "$clean_header"
 num_columns=${#headers[@]}
-# Loop through columns
+
 for ((i = 1; i <= num_columns; i++)); do
   #tail display and skip header | tr remove carriage | cut -d get column index | grep -c counts matching regex ^$ (empty) 
   empty_cells=$(tail -n +2 "$FILE" | tr -d '\r' | cut -d';' -f"$i" | grep -c '^$')
-  # display the result
   echo "${headers[$((i - 1))]}: $empty_cells"
 done
