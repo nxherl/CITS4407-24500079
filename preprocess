@@ -7,11 +7,14 @@ if [ -z "$1" ]; then
 fi
 
 
-#C onvert the semicolon separator to the  <tab> character [DONE]
-# Convert the Microsoft line endings to Unix line endings [DONE]
-# Change format of floating-point numbers to use ‘.’ rather than ‘,’ as the decimal point.
+# 1. Convert the semicolon separator to the  <tab> character [DONE]
+# 2. Convert the Microsoft line endings to Unix line endings. [DONE]
+# To verify: file <file_name>. CRLF in output means windows ending exists.
+# Change format of floating-point numbers to use ‘.’ rather than ‘,’ as the decimal point. [DONE]
 # Deal with non-ASCII characters by deleting them from the output. For example CO2 in a game title is rendered as CO. (Hint: one way is to use the tr command.)
 # While other empty cells can be ignored for now, new unique IDs need to be created for the 16 empty IDs. How you do this is up to you, but one way is to find the largest integer ID in the input file, and then continue numbering past that.
 
 
-head $1 | tr ';' '\t' | tr -d '\r'
+#head "$1" | tr ';' '\t' | tr -d '\r' | sed 's/\([0-9]\),\([0-9]\)/\1.\2/g'
+cat "$1" | tr ';' '\t' | tr -d '\r' | sed 's/\([0-9]\),\([0-9]\)/\1.\2/g' | tr -cd '\0-\177'
+
