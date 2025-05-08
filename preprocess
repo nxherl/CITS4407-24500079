@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#check for argument and show usage 
+if [ -z "$1" ]; then
+  echo "Usage: $0 <filename>"
+  exit 1
+fi
+
+
+#C onvert the semicolon separator to the  <tab> character [DONE]
+# Convert the Microsoft line endings to Unix line endings [DONE]
+# Change format of floating-point numbers to use ‘.’ rather than ‘,’ as the decimal point.
+# Deal with non-ASCII characters by deleting them from the output. For example CO2 in a game title is rendered as CO. (Hint: one way is to use the tr command.)
+# While other empty cells can be ignored for now, new unique IDs need to be created for the 16 empty IDs. How you do this is up to you, but one way is to find the largest integer ID in the input file, and then continue numbering past that.
+
+
+head $1 | tr ';' '\t' | tr -d '\r'
