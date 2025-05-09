@@ -25,4 +25,5 @@ final=$(echo "$data" | while IFS=$'\t' read -r first_column rest; do
 done)
 
 mechanics_col=$(echo "$final" | awk -F'\t' 'NR > 1 {print $13}')
+echo "$mechanics_col"
 
