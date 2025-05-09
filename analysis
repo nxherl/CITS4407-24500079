@@ -24,6 +24,37 @@ final=$(echo "$data" | while IFS=$'\t' read -r first_column rest; do
     fi
 done)
 
-mechanics_col=$(echo "$final" | awk -F'\t' 'NR > 1 {print $13}')
-echo "$mechanics_col"
 
+mechanics_column=$(echo "$final" | cut -f13)
+
+
+# Initialize an empty associative array to store mechanic counts
+declare -A mechanic_counts
+
+# Process each line of the extracted column
+while IFS= read -r line; do
+  # Split the line by comma and trim whitespace
+  IFS=',' read -r -a mechanics <<< "$line"
+  for mechanic in "${mechanics[@]}"; do
+    # Trim leading/trailing whitespace
+    trimmed_mechanic=$(echo "$mechanic" | xargs)
+    if [[ -n "$trimmed_mechanic" ]]; then
+      # Increment the count for the mechanic
+      ((mechanic_counts["$trimmed_mechanic"]++))
+    fi
+  done
+done <<< "$mechanics_column"
+
+# Find the mechanic with the highest count
+max_count=0
+max_mechanic=""
+
+for mechanic in "${!mechanic_counts[@]}"; do
+  count="${mechanic_counts[$mechanic]}"
+  if [[ "$count" -gt "$max_count" ]]; then
+    max_count="$count"
+    max_mechanic="$mechanic"
+  fi
+done
+
+echo "The most popular game mechanics is $max_mechanic found in $max_count games."
