@@ -4,7 +4,7 @@ if [ -z "$1" ]; then
   echo "Usage: $0 <filename>"
   exit 1
 fi
-
+#===========================DATA CLEANING==================================
 # Convert semicolon to tab as delimiter, convert CRLF, convert decimal, delete non-ASCII. Store to variable cleaned
 cleaned=$(cat "$1" | tr ';' '\t' | tr -d '\r' | sed 's/\([0-9]\),\([0-9]\)/\1.\2/g' | tr -cd '\0-\177')
 header=$(echo "$cleaned" | head -n 1)
@@ -16,6 +16,7 @@ next_id=$((max_id + 1))
 
 # Process each line in the cleaned data
 final=$(echo "$data" | while IFS=$'\t' read -r first_column rest; do
+    # If first column is not number then add next_id. Else print as is.
     if [[ ! "$first_column" =~ ^[0-9]+$ ]]; then
         echo -e "${next_id}\t$first_column\t$rest"
         next_id=$((next_id + 1))
@@ -24,38 +25,45 @@ final=$(echo "$data" | while IFS=$'\t' read -r first_column rest; do
     fi
 done)
 
-#store the rows per column into variables
+
+#===========================STORE OCCURENCES INTO ARRAYS==================================
+#store the rows per column into variables 
 mechanics_column=$(echo "$final" | cut -f13)
 domain_column=$(echo "$final" | cut -f14)
 
-#array placeholders to store occurence counts
+# Array placeholders to store occurence counts
 declare -A mechanic_counts
 declare -A domain_counts
 
-
+# Read each line of column and store into variable line_mech
 while IFS= read -r line_mech; do
-  # split line by comma delimiter and store into array mechanics
+  # Read from variable line_mech, split line by comma delimiter and store into array mechanics
   IFS=',' read -r -a mechanics <<< "$line_mech"
   for mechanic in "${mechanics[@]}"; do
-    # delete whitespace
+    # Delete whitespaces before and after values
     cleaned_mechanic=$(echo "$mechanic" | xargs)
-   # if not empty, then add count
+    # If not empty, then add array counts as per values encountered
     if [[ -n "$cleaned_mechanic" ]]; then
       ((mechanic_counts["$cleaned_mechanic"]++))
     fi
   done
 done <<< "$mechanics_column"
 
+# Read each line of column and store into variable line_dom
 while IFS= read -r line_dom; do
+  # Read from variable line_dom, split line by comma delimiter and store into array domains
   IFS=',' read -r -a domains <<< "$line_dom"
   for domain in "${domains[@]}"; do
+    # Delete whitespaces before and after values
     cleaned_domains=$(echo "$domain" | xargs)
+    # If not empty, then add array counts as per values encountered
     if [[ -n "$cleaned_domains" ]]; then
       ((domain_counts["$cleaned_domains"]++))
     fi
   done
 done <<< "$domain_column"
 
+#===========================DETERMINE HIGHEST OCCURENCES==================================
 # Placeholders to determine highest occurence counts
 max_mech_count=0
 max_mechanic="" 
@@ -78,5 +86,7 @@ for domain in "${!domain_counts[@]}"; do
   fi
 done
 
+
+# Final output
 echo "The most popular game mechanics is $max_mechanic found in $max_mech_count games."
 echo "The most game domain is $max_domain found in $max_dom_count games."
