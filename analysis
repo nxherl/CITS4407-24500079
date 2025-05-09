@@ -24,37 +24,59 @@ final=$(echo "$data" | while IFS=$'\t' read -r first_column rest; do
     fi
 done)
 
-
+#store the rows per column into variables
 mechanics_column=$(echo "$final" | cut -f13)
+domain_column=$(echo "$final" | cut -f14)
 
-
-# Initialize an empty associative array to store mechanic counts
+#array placeholders to store occurence counts
 declare -A mechanic_counts
+declare -A domain_counts
 
-# Process each line of the extracted column
-while IFS= read -r line; do
-  # Split the line by comma and trim whitespace
-  IFS=',' read -r -a mechanics <<< "$line"
+
+while IFS= read -r line_mech; do
+  # split line by comma delimiter and store into array mechanics
+  IFS=',' read -r -a mechanics <<< "$line_mech"
   for mechanic in "${mechanics[@]}"; do
-    # Trim leading/trailing whitespace
-    trimmed_mechanic=$(echo "$mechanic" | xargs)
-    if [[ -n "$trimmed_mechanic" ]]; then
-      # Increment the count for the mechanic
-      ((mechanic_counts["$trimmed_mechanic"]++))
+    # delete whitespace
+    cleaned_mechanic=$(echo "$mechanic" | xargs)
+   # if not empty, then add count
+    if [[ -n "$cleaned_mechanic" ]]; then
+      ((mechanic_counts["$cleaned_mechanic"]++))
     fi
   done
 done <<< "$mechanics_column"
 
-# Find the mechanic with the highest count
-max_count=0
-max_mechanic=""
+while IFS= read -r line_dom; do
+  IFS=',' read -r -a domains <<< "$line_dom"
+  for domain in "${domains[@]}"; do
+    cleaned_domains=$(echo "$domain" | xargs)
+    if [[ -n "$cleaned_domains" ]]; then
+      ((domain_counts["$cleaned_domains"]++))
+    fi
+  done
+done <<< "$domain_column"
+
+# Placeholders to determine highest occurence counts
+max_mech_count=0
+max_mechanic="" 
+max_dom_count=0
+max_domain=""
 
 for mechanic in "${!mechanic_counts[@]}"; do
   count="${mechanic_counts[$mechanic]}"
-  if [[ "$count" -gt "$max_count" ]]; then
-    max_count="$count"
+  if [[ "$count" -gt "$max_mech_count" ]]; then
+    max_mech_count="$count"
     max_mechanic="$mechanic"
   fi
 done
 
-echo "The most popular game mechanics is $max_mechanic found in $max_count games."
+for domain in "${!domain_counts[@]}"; do
+  count="${domain_counts[$domain]}"
+  if [[ "$count" -gt "$max_dom_count" ]]; then
+    max_dom_count="$count"
+    max_domain="$domain"
+  fi
+done
+
+echo "The most popular game mechanics is $max_mechanic found in $max_mech_count games."
+echo "The most game domain is $max_domain found in $max_dom_count games."
