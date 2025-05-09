@@ -70,18 +70,24 @@ max_mechanic=""
 max_dom_count=0
 max_domain=""
 
+# Loop over the keys of the arrays
 for mechanic in "${!mechanic_counts[@]}"; do
-  count="${mechanic_counts[$mechanic]}"
-  if [[ "$count" -gt "$max_mech_count" ]]; then
-    max_mech_count="$count"
+  count_mech="${mechanic_counts[$mechanic]}"
+  # Compare count to current highest. 
+  # If current count is greater current highest, then update the current highest
+  if [[ "$count_mech" -gt "$max_mech_count" ]]; then
+    max_mech_count="$count_mech"
     max_mechanic="$mechanic"
   fi
 done
 
+# Loop over the keys of the arrays
 for domain in "${!domain_counts[@]}"; do
-  count="${domain_counts[$domain]}"
-  if [[ "$count" -gt "$max_dom_count" ]]; then
-    max_dom_count="$count"
+  count_dom="${domain_counts[$domain]}"
+  # Compare count to current highest. 
+  # If current count is greater current highest, then update the current highest
+  if [[ "$count_dom" -gt "$max_dom_count" ]]; then
+    max_dom_count="$count_dom"
     max_domain="$domain"
   fi
 done
