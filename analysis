@@ -92,7 +92,13 @@ for domain in "${!domain_counts[@]}"; do
   fi
 done
 
+#===========================PEARSON==================================
+year_column=$(echo "$final" | cut -f3)
+rating_column=$(echo "$final" | cut -f9)
+complexity_column=$(echo "$final" | cut -f11)
 
-# Final output
-echo "The most popular game mechanics is $max_mechanic found in $max_mech_count games."
-echo "The most game domain is $max_domain found in $max_dom_count games."
+
+
+#===========================OUTPUT==================================
+# echo "The most popular game mechanics is $max_mechanic found in $max_mech_count games."
+# echo "The most game domain is $max_domain found in $max_dom_count games."
