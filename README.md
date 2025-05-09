@@ -1,6 +1,7 @@
-# CITS4407-24500079
-CITS4407 Sem 1 2025 Assignment 2 \n
-Date created: May 6 2025 10:00 AWST \n
+CITS4407 Sem 1 2025 Assignment 2 
+
+Date created: May 6 2025 10:00 AWST 
+
 This repository is created for completing CITS4407 assignment 2 SEM 1 2025
 
 Following are the details of the scripts:
