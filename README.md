@@ -13,6 +13,7 @@ Following are the details of the scripts:
 
 3. analysis:
    a bash script to display most popular game mechanics, most game domain, correlation between the year of publication and the average rating, correlation between the complexity of a game and its average rating.
+   usage: ./analysis <file>
 
 
  
