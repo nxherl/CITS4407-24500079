@@ -27,7 +27,7 @@ done)
 
 
 #===========================STORE OCCURENCES INTO ARRAYS==================================
-#store the rows per column into variables 
+# Store the rows per column into variables 
 mechanics_column=$(echo "$final" | cut -f13)
 domain_column=$(echo "$final" | cut -f14)
 
@@ -97,81 +97,86 @@ year_column=$(echo "$final" | cut -f3)
 rating_column=$(echo "$final" | cut -f9)
 complexity_column=$(echo "$final" | cut -f11)
 
+# Placeholder for average/means
 sum_year=0
 count_year=0
+sum_rating=0
+count_rating=0
 
-
+# Loop each line read from year_column. Store into variable year.
 while IFS=$'\n' read -r year; do
+    # If value is integer, then accumulate year to the sum_year
+    # Count the rows and accumulate to count_year
     if [[ "$year" =~ ^[0-9]+$ ]]; then
         sum_year=$((sum_year + year))  
         count_year=$((count_year + 1)) 
     fi
 done <<< "$year_column"
+means_year=$(echo "scale=6; $sum_year / $count_year" | bc)  
 
-if [[ $count_year -gt 0 ]]; then
-    means_year=$(echo "scale=6; $sum_year / $count_year" | bc)  
-else
-    means_year=0  
-fi
-
-sum_rating=0
-count_rating=0
-
+# Loop each line read from year_column. Store into variable rating
 while IFS=$'\n' read -r rating; do
-    # Check if the value is a valid number
+    # If value is integer, then accumulate year to the sum_rating
+    # Count the rows and accumulate to count_rating
     if [[ "$rating" =~ ^[0-9.]+$ ]]; then
-        sum_rating=$(echo "$sum_rating + $rating" | bc)  # Add the rating to sum
-        count_rating=$((count_rating + 1))  # Increment the count
+        sum_rating=$(echo "$sum_rating + $rating" | bc)  
+        count_rating=$((count_rating + 1)) 
     fi
 done <<< "$rating_column"
+means_rating=$(echo "scale=6; $sum_rating / $count_rating" | bc)  
 
-if [[ $count_rating -gt 0 ]]; then
-    means_rating=$(echo "scale=6; $sum_rating / $count_rating" | bc)  # Calculate and store the average
-else
-    means_rating=0  
-fi
-
+# Placeholder for sum of differences from mean
 sum_diff_year=0
+sum_diff_rating=0
 
+# Loop each line read from year_column. Store into variable year.
 while IFS=$'\n' read -r year; do
+    # If value is integer, calculate difference between the year and the mean 
     if [[ "$year" =~ ^[0-9]+$ ]]; then
         diff=$(echo "$year - $means_year" | bc)
         sum_diff_year=$(echo "$sum_diff_year + $diff" | bc)
     fi
 done <<< "$year_column"
 
-sum_diff_rating=0
-
+# Loop each line read from rating_column. Store into variable rating.
 while IFS=$'\n' read -r rating; do
+    # If value is integer, calculate difference between the rating and the mean 
     if [[ "$rating" =~ ^[0-9.]+$ ]]; then
         diff=$(echo "$rating - $means_rating" | bc)
         sum_diff_rating=$(echo "$sum_diff_rating + $diff" | bc)
     fi
 done <<< "$rating_column"
 
+# Array placeholders to store values from year and rating columns
 declare -a years
 declare -a ratings
 
+# Read from two columns and assign to corresponding arrays
 while IFS= read -r yline && IFS= read -r rline <&3; do
     years+=("$yline")
     ratings+=("$rline")
 done <<< "$year_column" 3<<< "$rating_column"
 
+# Placeholders for pearson formula
 top=0
 sum_sq_diff_year=0
 sum_sq_diff_rating=0
 
+# Loop over paired year and rating value
 for ((i=0; i<${#years[@]}; i++)); do
     y="${years[i]}"
     r="${ratings[i]}"
 
+    # If data is integer and has decimals, calculate the diff
     if [[ "$y" =~ ^[0-9]+$ && "$r" =~ ^[0-9.]+$ ]]; then
         diff_y=$(echo "$y - $means_year" | bc -l)
         diff_r=$(echo "$r - $means_rating" | bc -l)
-
+        
+        # Calculate the top part of the pearson formula
         prod=$(echo "$diff_y * $diff_r" | bc -l)
         top=$(echo "$top + $prod" | bc -l)
 
+        # Calculate the botton part of the pearson formula
         sq_diff_y=$(echo "$diff_y * $diff_y" | bc -l)
         sum_sq_diff_year=$(echo "$sum_sq_diff_year + $sq_diff_y" | bc -l)
 
@@ -185,15 +190,7 @@ sqrt_rating=$(echo "scale=10; sqrt($sum_sq_diff_rating)" | bc -l)
 bottom=$(echo "$sqrt_year * $sqrt_rating" | bc -l)
 pearson=$(echo "scale=6; $top / $bottom" | bc -l)
 
-# if (( $(echo "$bottom == 0" | bc -l) )); then
-#     echo "Pearson correlation: undefined (division by zero)"
-# else
-#     pearson=$(echo "scale=6; $top / $bottom" | bc -l)
-#     printf "The correlation between the year of publication and the average rating is %.3f\n" "$pearson"
-
-# fi
-
 #===========================OUTPUT==================================
-# echo "The most popular game mechanics is $max_mechanic found in $max_mech_count games."
-# echo "The most game domain is $max_domain found in $max_dom_count games."
+echo "The most popular game mechanics is $max_mechanic found in $max_mech_count games."
+echo "The most game domain is $max_domain found in $max_dom_count games."
 printf "The correlation between the year of publication and the average rating is %.3f\n" "$pearson"
