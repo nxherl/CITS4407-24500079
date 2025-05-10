@@ -16,18 +16,21 @@ awk -F'\t' '
   for (m in mech_array) {
     # Remove whitespaces
     gsub(/^ +| +$/, "", mech_array[m])
+    # If array is not empty, accumulate value
     if (mech_array[m] != "") mech_count[mech_array[m]]++
-  }
+  } 
 
   # Split column mechanics using comma into an array dom_array
   split($14, dom_array, ",")
   for (d in dom_array) {
     # Remove whitespaces
     gsub(/^ +| +$/, "", dom_array[d])
+    # If array is not empty, accumulate value
     if (dom_array[d] != "") dom_count[dom_array[d]]++
   }
 
   # Pearson Year to Rating
+  # If year is integer and rating is float, store to variables for pearson calculation
   if ($3 ~ /^[0-9]+$/ && $9 ~ /^[0-9.]+$/) {
     year = $3 + 0
     rating = $9 + 0
@@ -41,6 +44,7 @@ awk -F'\t' '
   }
 
   # Pearson Complexity to Rating
+  # If year is integer and rating is float, store to variables for pearson calculation
   if ($11 ~ /^[0-9.]+$/ && $9 ~ /^[0-9.]+$/) {
     complexity = $11 + 0
     rating2 = $9 + 0
@@ -70,14 +74,14 @@ END {
     }
   }
 
-  # Pearson Year vs Rating
+  # Pearson Year to Rating
   mean_year = sum_year / count
   mean_rating = sum_rating / count
   numerator1 = sum_year_rating - (sum_year * sum_rating) / count
   denominator1 = sqrt((sum_year_sq - (sum_year^2) / count) * (sum_rating_sq - (sum_rating^2) / count))
   pearson1 = (denominator1 == 0) ? 0 : numerator1 / denominator1
 
-  # Pearson Complexity vs Rating
+  # Pearson Complexity to Rating
   mean_complexity = sum_complexity / count2
   mean_rating2 = sum_rating2 / count2
   numerator2 = sum_complexity_rating - (sum_complexity * sum_rating2) / count2
