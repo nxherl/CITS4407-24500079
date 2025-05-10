@@ -4,32 +4,11 @@ if [ -z "$1" ]; then
   echo "Usage: $0 <filename>"
   exit 1
 fi
-#===========================DATA CLEANING==================================
-# Convert semicolon to tab as delimiter, convert CRLF, convert decimal, delete non-ASCII. Store to variable cleaned
-cleaned=$(cat "$1" | tr ';' '\t' | tr -d '\r' | sed 's/\([0-9]\),\([0-9]\)/\1.\2/g' | tr -cd '\0-\177')
-header=$(echo "$cleaned" | head -n 1)
-data=$(echo "$cleaned" | tail -n +2)
-
-# Get highest value from first column
-max_id=$(echo "$cleaned" | cut -f1 | grep -E '^[0-9]+$' | sort -n | tail -n 1 )
-next_id=$((max_id + 1))
-
-# Process each line in the cleaned data
-final=$(echo "$data" | while IFS=$'\t' read -r first_column rest; do
-    # If first column is not number then add next_id. Else print as is.
-    if [[ ! "$first_column" =~ ^[0-9]+$ ]]; then
-        echo -e "${next_id}\t$first_column\t$rest"
-        next_id=$((next_id + 1))
-    else
-        echo -e "$first_column\t$rest"
-    fi
-done)
-
-
+final=$1
 #===========================STORE OCCURENCES INTO ARRAYS==================================
 # Store the rows per column into variables 
-mechanics_column=$(echo "$final" | cut -f13)
-domain_column=$(echo "$final" | cut -f14)
+mechanics_column=$(cat "$final" | cut -f13)
+domain_column=$(cat "$final" | cut -f14)
 
 # Array placeholders to store occurence counts
 declare -A mechanic_counts
@@ -93,9 +72,9 @@ for domain in "${!domain_counts[@]}"; do
 done
 
 #===========================PEARSON==================================
-year_column=$(echo "$final" | cut -f3)
-rating_column=$(echo "$final" | cut -f9)
-complexity_column=$(echo "$final" | cut -f11)
+year_column=$(cat "$final" | cut -f3)
+rating_column=$(cat "$final" | cut -f9)
+complexity_column=$(cat "$final" | cut -f11)
 
 # Placeholder for average/means
 sum_year=0
