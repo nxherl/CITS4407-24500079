@@ -8,23 +8,26 @@ fi
 
 file="$1"
 
-gawk -F'\t' '
+# Read tab as delimiter
+awk -F'\t' ' 
 {
-  # Count mechanics
-  split($13, mech_list, ",")
-  for (m in mech_list) {
-    gsub(/^ +| +$/, "", mech_list[m])
-    if (mech_list[m] != "") mech_count[mech_list[m]]++
+  # Split column mechanics using comma into an array mech_array
+  split($13, mech_array, ",")
+  for (m in mech_array) {
+    # Remove whitespaces
+    gsub(/^ +| +$/, "", mech_array[m])
+    if (mech_array[m] != "") mech_count[mech_array[m]]++
   }
 
-  # Count domains
-  split($14, dom_list, ",")
-  for (d in dom_list) {
-    gsub(/^ +| +$/, "", dom_list[d])
-    if (dom_list[d] != "") dom_count[dom_list[d]]++
+  # Split column mechanics using comma into an array dom_array
+  split($14, dom_array, ",")
+  for (d in dom_array) {
+    # Remove whitespaces
+    gsub(/^ +| +$/, "", dom_array[d])
+    if (dom_array[d] != "") dom_count[dom_array[d]]++
   }
 
-  # Pearson Year vs Rating
+  # Pearson Year to Rating
   if ($3 ~ /^[0-9]+$/ && $9 ~ /^[0-9.]+$/) {
     year = $3 + 0
     rating = $9 + 0
@@ -37,7 +40,7 @@ gawk -F'\t' '
     count++
   }
 
-  # Pearson Complexity vs Rating
+  # Pearson Complexity to Rating
   if ($11 ~ /^[0-9.]+$/ && $9 ~ /^[0-9.]+$/) {
     complexity = $11 + 0
     rating2 = $9 + 0
@@ -51,7 +54,7 @@ gawk -F'\t' '
   }
 }
 END {
-  # Most frequent mechanic
+  # Highest occurence mechanics
   for (m in mech_count) {
     if (mech_count[m] > max_mech_count) {
       max_mech = m
@@ -59,7 +62,7 @@ END {
     }
   }
 
-  # Most frequent domain
+  # Highest occurence domains
   for (d in dom_count) {
     if (dom_count[d] > max_dom_count) {
       max_dom = d
