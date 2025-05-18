@@ -31,10 +31,12 @@ awk -F'\t' '
 
   # Pearson Year to Rating
   # If year is integer and rating is float, store to variables for pearson calculation
-  if ($3 ~ /^[0-9]+$/ && $9 ~ /^[0-9.]+$/) {
+  if ($3 == "") 
+    next
+  if ($9 ~ /^[0-9.]+$/) {
     year = $3 + 0
     rating = $9 + 0
-
+  
     sum_year += year
     sum_rating += rating
     sum_year_sq += year^2
